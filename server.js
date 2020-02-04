@@ -22,6 +22,7 @@ connection.connect(function (err) {
 });
 
 class EmployeeDisplay {
+    // should this just be an extension of RoleDisplay?
     constructor(id, first_name, last_name, title, department, salary, manager) {
         this.id = id;
         this.first_name = first_name;
@@ -33,8 +34,17 @@ class EmployeeDisplay {
     }
 }
 
+class RoleDisplay{
+    constructor(id, title, salary, department){
+        this.id = id;
+        this.title = title;
+        this.salary = salary;
+        this.department = department;
+    }
+}
 
 let choices = ["View all Employees", "View all Roles", "View all Departments"];
+
 function promptUsr(){
     inquirer.prompt({
         type: "list",
@@ -48,11 +58,10 @@ function promptUsr(){
         } else if (choice == choices[1]) {
             viewAllRoles();
         } else if (choice == choices[2]) {
-    
+            viewAllDepts();
         }
     });
 }
-
 
 function viewAllEmployees(){
     connection.query("select * from employee; select * from role; select * from department", function (err, data) {
@@ -105,4 +114,34 @@ function viewAllEmployees(){
         console.table(employeeArr);
         promptUsr();
     })
+}
+
+function viewAllRoles(){
+    connection.query("select * from role; select * from department", function (err, data) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+       
+        let departments = data[1];
+        let roleArr = [];
+
+        for(let i = 0; i < data[0].length; i++){
+            let roleObj = data[0][i];
+            let title = roleObj.title;
+            let department_id = roleObj.department_id;
+            let deptName = departments[department_id -1].name;
+            let salary = roleObj.salary*1000;
+
+            let rl = new RoleDisplay(roleObj.id, title, salary, deptName);
+
+            roleArr.push(rl);
+        }
+
+        console.table(roleArr);
+    });
+}
+
+function viewAllDepts(){
+
 }
