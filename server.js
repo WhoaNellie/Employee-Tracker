@@ -16,5 +16,26 @@ connection.connect(function (err) {
         console.error(err.stack);
         return;
     }
-    console.log("connected as id " + connection.threadId);
+    // console.log("connected as id " + connection.threadId);
+});
+
+let choices = ["View all Employees", "View all Roles", "View all Departments"];
+
+inquirer.prompt({
+    type: "list",
+    name: "choice",
+    message: "What would you like to do?",
+    choices: choices
+}).then(function(res){
+    let choice = res.choice;
+    if(choice == choices[0]){
+        connection.query("select * from employee", function(err, data){
+            if (err) {
+                console.log(err);
+                return;
+            }
+        
+            console.log(data);
+        })
+    }
 });
