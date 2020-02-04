@@ -34,8 +34,8 @@ class EmployeeDisplay {
     }
 }
 
-class RoleDisplay{
-    constructor(id, title, salary, department){
+class RoleDisplay {
+    constructor(id, title, salary, department) {
         this.id = id;
         this.title = title;
         this.salary = salary;
@@ -45,7 +45,7 @@ class RoleDisplay{
 
 let choices = ["View all Employees", "View all Roles", "View all Departments"];
 
-function promptUsr(){
+function promptUsr() {
     inquirer.prompt({
         type: "list",
         name: "choice",
@@ -54,7 +54,7 @@ function promptUsr(){
     }).then(function (res) {
         let choice = res.choice;
         if (choice == choices[0]) {
-            viewAllEmployees();    
+            viewAllEmployees();
         } else if (choice == choices[1]) {
             viewAllRoles();
         } else if (choice == choices[2]) {
@@ -63,7 +63,7 @@ function promptUsr(){
     });
 }
 
-function viewAllEmployees(){
+function viewAllEmployees() {
     connection.query("select * from employee; select * from role; select * from department", function (err, data) {
         if (err) {
             console.log(err);
@@ -116,22 +116,22 @@ function viewAllEmployees(){
     })
 }
 
-function viewAllRoles(){
+function viewAllRoles() {
     connection.query("select * from role; select * from department", function (err, data) {
         if (err) {
             console.log(err);
             return;
         }
-       
+
         let departments = data[1];
         let roleArr = [];
 
-        for(let i = 0; i < data[0].length; i++){
+        for (let i = 0; i < data[0].length; i++) {
             let roleObj = data[0][i];
             let title = roleObj.title;
             let department_id = roleObj.department_id;
-            let deptName = departments[department_id -1].name;
-            let salary = roleObj.salary*1000;
+            let deptName = departments[department_id - 1].name;
+            let salary = roleObj.salary * 1000;
 
             let rl = new RoleDisplay(roleObj.id, title, salary, deptName);
 
@@ -139,9 +139,17 @@ function viewAllRoles(){
         }
 
         console.table(roleArr);
+        promptUsr();
     });
 }
 
-function viewAllDepts(){
-
+function viewAllDepts() {
+    connection.query("select * from department", function (err, data) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.table(data);
+        promptUsr();
+    });
 }
