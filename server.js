@@ -66,18 +66,20 @@ inquirer.prompt({
                 let salary = roles[role_id].salary * 1000;
 
                 let department_id = roles[role_id].department_id;
-                let deptName = departments[department_id-1];
+                console.log(department_id);
+                let deptName = departments[department_id - 1].name;
+                console.log(deptName);
 
                 let manager_id = emplObj.manager_id;
                 let managerName = "None";
                 if(manager_id != null){
                     managerName = data[0][manager_id-1].first_name + " " + data[0][manager_id-1].last_name;
                 }
-                
-                console.log(emplObj.first_name);
-                console.log("role"+role_id);
-                console.log("dept"+deptName);
-                console.log("manager"+managerName);
+
+                // console.log(emplObj.first_name);
+                // console.log("role"+role_id);
+                // console.log("dept"+deptName);
+                // console.log("manager"+managerName);
 
 
                 let empl = new EmployeeDisplay(
