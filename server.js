@@ -43,7 +43,7 @@ class RoleDisplay {
     }
 }
 
-let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee", "Add a Role"];
+let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee", "Add a Role", "Add a Department"];
 
 function promptUsr() {
     inquirer.prompt({
@@ -63,6 +63,8 @@ function promptUsr() {
             addEmployee();
         } else if (choice == choices[4]) {
             addRole();
+        } else if (choice == choices[5]) {
+            addDepartment();
         }
     });
 }
@@ -260,5 +262,23 @@ function addRole(){
                 promptUsr();
             });
         });
+    });
+}
+
+function addDepartment(){
+    inquirer.prompt({
+        name: "name",
+        message: "What is the name of this department?"
+    }).then(function(answer){
+        let name = answer.name.trim();
+
+        connection.query("INSERT INTO department (name) VALUES (?)", [name], function(err, data){
+            if (err) {
+                console.log(err);
+                return;
+            }
+            promptUsr();
+        });
+
     });
 }
