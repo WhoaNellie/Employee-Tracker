@@ -167,7 +167,6 @@ function addEmployee() {
 
         let managers = ["None"];
         let titles = data[1].map(role => role.title);
-        console.log(titles);
 
         for(let i = 0; i < data[0].length; i++){
             let manName = data[0][i].first_name + " " + data[0][i].last_name;
@@ -194,12 +193,25 @@ function addEmployee() {
         }];
     
         inquirer.prompt(employeeQs).then(function(answers){
-            let first_name;
-            let last_name;
-            let role;
-            let manager;
+            let first_name = answers.first_name.trim();
+            let last_name = answers.last_name.trim();
+            let role_id = titles.indexOf(answers.title)+1;
+            let manager_id = managers.indexOf(answers.manager);
+
+            if(manager_id == 0) manager_id = null;
+
+            // console.log(first_name,last_name, role_id, manager_id);
+            let respones = [first_name, last_name, role_id, manager_id]
+
+            connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)",[respones], function(err, data){
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                promptUsr();
+            });
     
-            promptUsr();
+            
         });
 
     });
