@@ -43,7 +43,7 @@ class RoleDisplay {
     }
 }
 
-let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee", "Add a Role", "Add a Department"];
+let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee", "Add a Role", "Add a Department", "Update Employee Role"];
 
 function promptUsr() {
     inquirer.prompt({
@@ -65,6 +65,8 @@ function promptUsr() {
             addRole();
         } else if (choice == choices[5]) {
             addDepartment();
+        } else if (choice == choices[6]) {
+            updateRole();
         }
     });
 }
@@ -172,7 +174,7 @@ function addEmployee() {
         let managers = ["None"];
         let titles = data[1].map(role => role.title);
 
-        for(let i = 0; i < data[0].length; i++){
+        for (let i = 0; i < data[0].length; i++) {
             let manName = data[0][i].first_name + " " + data[0][i].last_name;
 
             managers.push(manName);
@@ -189,42 +191,42 @@ function addEmployee() {
             name: "title",
             message: "What is this Employee's title?",
             choices: titles
-        },{
+        }, {
             type: "list",
             name: "manager",
             message: "Who is this Employee's Manager?",
             choices: managers
         }];
-    
-        inquirer.prompt(employeeQs).then(function(answers){
+
+        inquirer.prompt(employeeQs).then(function (answers) {
             let first_name = answers.first_name.trim();
             let last_name = answers.last_name.trim();
-            let role_id = titles.indexOf(answers.title)+1;
+            let role_id = titles.indexOf(answers.title) + 1;
             let manager_id = managers.indexOf(answers.manager);
 
-            if(manager_id == 0) manager_id = null;
+            if (manager_id == 0) manager_id = null;
 
             let respones = [first_name, last_name, role_id, manager_id]
 
-            connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)",[respones], function(err, data){
+            connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)", [respones], function (err, data) {
                 if (err) {
                     console.log(err);
                     return;
                 }
                 promptUsr();
             });
-    
-            
+
+
         });
 
     });
 
-   
-    
+
+
 }
 
-function addRole(){
-    connection.query("select name from department", function(err, data){
+function addRole() {
+    connection.query("select name from department", function (err, data) {
         if (err) {
             console.log(err);
             return;
@@ -240,21 +242,20 @@ function addRole(){
             message: "What department is this role in?",
             type: "list",
             choices: departments
-        },{
+        }, {
             name: "salary",
             message: "What is this position's salary? (in $ XX.XX K/year format)",
             type: "number"
-        }
-    ];
+        }];
 
-        inquirer.prompt(roleQs).then(function(answers){
+        inquirer.prompt(roleQs).then(function (answers) {
             let title = answers.title.trim();
             let salary = answers.salary;
             let department_id = departments.indexOf(answers.department) + 1;
 
             let responses = [title, salary, department_id];
 
-            connection.query("INSERT INTO role (title,salary, department_id) VALUES (?)", [responses], function(err, data){
+            connection.query("INSERT INTO role (title,salary, department_id) VALUES (?)", [responses], function (err, data) {
                 if (err) {
                     console.log(err);
                     return;
@@ -265,19 +266,72 @@ function addRole(){
     });
 }
 
-function addDepartment(){
+function addDepartment() {
     inquirer.prompt({
         name: "name",
         message: "What is the name of this department?"
-    }).then(function(answer){
+    }).then(function (answer) {
         let name = answer.name.trim();
 
-        connection.query("INSERT INTO department (name) VALUES (?)", [name], function(err, data){
+        connection.query("INSERT INTO department (name) VALUES (?)", [name], function (err, data) {
             if (err) {
                 console.log(err);
                 return;
             }
             promptUsr();
+        });
+
+    });
+}
+
+function updateRole() {
+    connection.query("select id,first_name,last_name from employee; select title from role", function (err, data) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        let employees = [];
+        let employeeIDs = data[0].map(i => i.id); 
+        console.log(employeeIDs);
+        let titles = data[1].map(role => role.title);
+        console.log(titles);
+
+        for (let i = 0; i < data[0].length; i++) {
+            let emplName = data[0][i].first_name + " " + data[0][i].last_name;
+
+            employees.push(emplName);
+        }
+
+        let updateRoleQs = [{
+            type: "list",
+            name: "employee",
+            message: "Whose role are you updating?",
+            choices: employees
+        }, {
+            type: "list",
+            name: "title",
+            message: "What is their new role?",
+            choices: titles
+        }];
+
+        inquirer.prompt(updateRoleQs).then(function (answers) {
+            // making sure to retrieve update and update by id in case rows are deleted and index != id
+            let employeeID = employeeIDs[employees.indexOf(answers.employee)];
+            console.log(employeeID);
+            let role_id = titles.indexOf(answers.title) + 1;
+            console.log(role_id);
+
+            // let respones = /
+
+            connection.query("UPDATE employee SET role_id=(?) WHERE id=(?)", [role_id,employeeID], function (err, data) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                promptUsr();
+            });
+
         });
 
     });
