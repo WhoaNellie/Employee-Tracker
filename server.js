@@ -43,7 +43,7 @@ class RoleDisplay {
     }
 }
 
-let choices = ["View all Employees", "View all Roles", "View all Departments"];
+let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee"];
 
 function promptUsr() {
     inquirer.prompt({
@@ -59,9 +59,13 @@ function promptUsr() {
             viewAllRoles();
         } else if (choice == choices[2]) {
             viewAllDepts();
+        } else if (choice == choices[3]) {
+            addEmployee();
         }
     });
 }
+
+// SELECT employee.id, employee.first_name, employee.last_name FROM employee INNER JOIN department ON role.department_id=department.id INNER JOIN role ON employee.role_id=role.id LEFT JOIN employee ON employee.manager_id=employee.name
 
 function viewAllEmployees() {
     connection.query("select * from employee; select * from role; select * from department", function (err, data) {
@@ -152,4 +156,54 @@ function viewAllDepts() {
         console.table(data);
         promptUsr();
     });
+}
+
+function addEmployee() {
+    connection.query("select first_name,last_name from employee; select title from role", function (err, data) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        let managers = ["None"];
+        let titles = data[1].map(role => role.title);
+        console.log(titles);
+
+        for(let i = 0; i < data[0].length; i++){
+            let manName = data[0][i].first_name + " " + data[0][i].last_name;
+
+            managers.push(manName);
+        }
+
+        let employeeQs = [{
+            name: "first_name",
+            message: "What is this Employee's first name?"
+        }, {
+            name: "last_name",
+            message: "What is this Employee's last name?"
+        }, {
+            type: "list",
+            name: "title",
+            message: "What is this Employee's title?",
+            choices: titles
+        },{
+            type: "list",
+            name: "manager",
+            message: "Who is this Employee's Manager?",
+            choices: managers
+        }];
+    
+        inquirer.prompt(employeeQs).then(function(answers){
+            let first_name;
+            let last_name;
+            let role;
+            let manager;
+    
+            promptUsr();
+        });
+
+    });
+
+   
+    
 }
