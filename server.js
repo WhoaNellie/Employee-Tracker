@@ -43,7 +43,7 @@ class RoleDisplay {
     }
 }
 
-let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee"];
+let choices = ["View all Employees", "View all Roles", "View all Departments", "Add an Employee", "Add a Role"];
 
 function promptUsr() {
     inquirer.prompt({
@@ -61,6 +61,8 @@ function promptUsr() {
             viewAllDepts();
         } else if (choice == choices[3]) {
             addEmployee();
+        } else if (choice == choices[4]) {
+            addRole();
         }
     });
 }
@@ -200,7 +202,6 @@ function addEmployee() {
 
             if(manager_id == 0) manager_id = null;
 
-            // console.log(first_name,last_name, role_id, manager_id);
             let respones = [first_name, last_name, role_id, manager_id]
 
             connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)",[respones], function(err, data){
@@ -218,4 +219,46 @@ function addEmployee() {
 
    
     
+}
+
+function addRole(){
+    connection.query("select name from department", function(err, data){
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log(data);
+        let departments = data.map(dept => dept.name);
+
+        let roleQs = [{
+            name: "title",
+            message: "What is the name of this role?"
+        }, {
+            name: "department",
+            message: "What department is this role in?",
+            type: "list",
+            choices: departments
+        },{
+            name: "salary",
+            message: "What is this position's salary? (in $ XX.XX K/year format)",
+            type: "number"
+        }
+    ];
+
+        inquirer.prompt(roleQs).then(function(answers){
+            let title = answers.title.trim();
+            let salary = answers.salary;
+            let department_id = departments.indexOf(answers.department) + 1;
+
+            let responses = [title, salary, department_id];
+
+            connection.query("INSERT INTO role (title,salary, department_id) VALUES (?)", [responses], function(err, data){
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                promptUsr();
+            });
+        });
+    });
 }
