@@ -71,57 +71,64 @@ function promptUsr() {
     });
 }
 
-// SELECT employee.id, employee.first_name, employee.last_name FROM employee INNER JOIN department ON role.department_id=department.id INNER JOIN role ON employee.role_id=role.id LEFT JOIN employee ON employee.manager_id=employee.name
-
 function viewAllEmployees() {
-    connection.query("select * from employee; select * from role; select * from department", function (err, data) {
+    // join formatted
+    // SELECT e.id, e.first_name, e.last_name, 
+    //         r.title, d.name, r.salary, 
+    //          IFNULL(CONCAT(em.first_name, " ", em.last_name), "None") AS manager
+    // FROM employee AS e
+    // LEFT JOIN role AS r ON e.role_id=r.id
+    // LEFT JOIN department AS d ON r.department_id=d.id
+    // LEFT JOIN employee AS em ON e.manager_id=em.id
+    connection.query("SELECT e.id, e.first_name, e.last_name, r.title, d.name, r.salary, IFNULL(CONCAT(em.first_name, ' ', em.last_name), 'None') AS manager FROM employee AS e LEFT JOIN role AS r ON e.role_id=r.id LEFT JOIN department AS d ON r.department_id=d.id LEFT JOIN employee AS em ON e.manager_id=em.id", function (err, data) {
         if (err) {
             console.log(err);
             return;
         }
 
-        // employee is data[0], data from 3 queries
-        let roles = data[1];
-        let departments = data[2];
+        // Did all this before i remembered joins were a thing rip me
+        // // employee is data[0], data from 3 queries
+        // let roles = data[1];
+        // let departments = data[2];
 
-        let employeeArr = [];
+        // let employeeArr = [];
 
-        for (let i = 0; i < data[0].length; i++) {
-            // current employee
-            let emplObj = data[0][i];
+        // for (let i = 0; i < data[0].length; i++) {
+        //     // current employee
+        //     let emplObj = data[0][i];
 
-            // getting title, salary
-            let role_id = emplObj.role_id - 1;
-            let title = roles[role_id].title;
-            let salary = roles[role_id].salary * 1000;
+        //     // getting title, salary
+        //     let role_id = emplObj.role_id - 1;
+        //     let title = roles[role_id].title;
+        //     let salary = roles[role_id].salary * 1000;
 
-            // getting dept name
-            let department_id = roles[role_id].department_id;
-            let deptName = departments[department_id - 1].name;
+        //     // getting dept name
+        //     let department_id = roles[role_id].department_id;
+        //     let deptName = departments[department_id - 1].name;
 
-            // getting manager name
-            let manager_id = emplObj.manager_id;
-            let managerName = "None";
-            if (manager_id != null) {
-                managerName = data[0][manager_id - 1].first_name + " " + data[0][manager_id - 1].last_name;
-            }
+        //     // getting manager name
+        //     let manager_id = emplObj.manager_id;
+        //     let managerName = "None";
+        //     if (manager_id != null) {
+        //         managerName = data[0][manager_id - 1].first_name + " " + data[0][manager_id - 1].last_name;
+        //     }
 
-            // creating nice employee object to display
-            let empl = new EmployeeDisplay(
-                emplObj.id,
-                emplObj.first_name,
-                emplObj.last_name,
-                title,
-                deptName,
-                salary,
-                managerName
-            );
+        //     // creating nice employee object to display
+        //     let empl = new EmployeeDisplay(
+        //         emplObj.id,
+        //         emplObj.first_name,
+        //         emplObj.last_name,
+        //         title,
+        //         deptName,
+        //         salary,
+        //         managerName
+        //     );
 
-            employeeArr.push(empl);
-        }
+        //     employeeArr.push(empl);
+        // }
 
         console.log("\n");
-        console.table(employeeArr);
+        console.table(data);
         promptUsr();
     })
 }

@@ -28,3 +28,10 @@ create table department(
     name varchar(30) not null,
     primary key(id)
 )
+
+SELECT e.id, e.first_name, e.last_name, 
+        r.title, d.name, r.salary, CONCAT(em.first_name, " ", em.last_name) AS manager
+FROM employee AS e
+LEFT JOIN role AS r ON e.role_id=r.id
+LEFT JOIN department AS d ON r.department_id=d.id
+LEFT JOIN employee AS em ON e.manager_id=em.id;
