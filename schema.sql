@@ -28,4 +28,3 @@ create table department(
     name varchar(30) not null,
     primary key(id)
 )
-
