@@ -74,8 +74,8 @@ function promptUsr() {
 function viewAllEmployees() {
     // join formatted
     // SELECT e.id, e.first_name, e.last_name, 
-    //         r.title, d.name, r.salary, 
-    //          IFNULL(CONCAT(em.first_name, " ", em.last_name), "None") AS manager
+    //        r.title, d.name, r.salary, 
+    //        IFNULL(CONCAT(em.first_name, " ", em.last_name), "None") AS manager
     // FROM employee AS e
     // LEFT JOIN role AS r ON e.role_id=r.id
     // LEFT JOIN department AS d ON r.department_id=d.id
@@ -134,28 +134,28 @@ function viewAllEmployees() {
 }
 
 function viewAllRoles() {
-    connection.query("select * from role; select * from department", function (err, data) {
+    connection.query("SELECT r.id, r.title, r.salary, d.name AS department FROM role AS r LEFT JOIN department AS d ON r.department_id=d.id", function (err, data) {
         if (err) {
             console.log(err);
             return;
         }
 
-        let departments = data[1];
-        let roleArr = [];
+        // let departments = data[1];
+        // let roleArr = [];
 
-        for (let i = 0; i < data[0].length; i++) {
-            let roleObj = data[0][i];
-            let title = roleObj.title;
-            let department_id = roleObj.department_id;
-            let deptName = departments[department_id - 1].name;
-            let salary = roleObj.salary * 1000;
+        // for (let i = 0; i < data[0].length; i++) {
+        //     let roleObj = data[0][i];
+        //     let title = roleObj.title;
+        //     let department_id = roleObj.department_id;
+        //     let deptName = departments[department_id - 1].name;
+        //     let salary = roleObj.salary * 1000;
 
-            let rl = new RoleDisplay(roleObj.id, title, salary, deptName);
+        //     let rl = new RoleDisplay(roleObj.id, title, salary, deptName);
 
-            roleArr.push(rl);
-        }
+        //     roleArr.push(rl);
+        // }
 
-        console.table(roleArr);
+        console.table(data);
         promptUsr();
     });
 }
